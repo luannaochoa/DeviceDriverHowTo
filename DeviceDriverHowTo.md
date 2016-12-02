@@ -36,9 +36,20 @@
     *          
     *************************************************************************/
              
-    #include <linux/kernel.h> //Needed for KERN_INFO
     #include <linux/init.h> //Allows use of init macros
     #include <linux/module.h> //Needed by all modules 
+    #include <linux/device.h> //supports module.h header
+    #include <linux/kernel.h> //Needed for KERN_INFO
+    #include <linux/fs.h> //FS support
+    #include <asm/uaccess.h>
+    #include <linux/mutex.h> //enables multiuser locks
+    #include <liknux/errno.h>
+    #include <linux/types.h> // alias for data types, allows for dd portability
+     #include <linux/kdev_t.h> //ditto ^
+    #include <linux/ioctl.h> //short for input output control; used for sending info from process to kernel and vice a versa 
+    #include <linux/ioport.h> //for mapping physical and virutal memory to each other 
+    #include <linux/highmem.h>//^ditto
+   
 
 
     /** Define Macros **/
@@ -174,27 +185,27 @@
 -------
 1. `CD` into linux/drivers/char 
 2. Create a directory named motorModule in the stated directory with the following command:
-```
+
     mkdir motorModule
-```
+
 3. Place the C code for motor1.ko in this directory 
 4. Create a makefile in this directory 
     * Makefile should contain:
 
-```
+
     obj $(CONFIG_STEPPERMOTOR) += motor1.o
-```
+
 5. Run the `CD ..` command. Your present working directory should be /linux/drivers/char 
 6. Edit the Kconfig file in this directory. The goal is to congigure the module to be loaded. The file should contain:
-``` 
+
     config STEPPERMOTOR
     tristate "Enable Steppermotor"
     default M
-```
+
 7. In the same directory, make changes to the makefile. So at /linux/drivers/char/makefile add the following lines:
-```
+
     obj $(CONFIG_STEPPERMOTOR) += motorModule/
-```
+
 8. Now compile the driver with the following command: `make ARCH=arm CROSS_COMPILE=linux-arm-gnuaebi-modules`. This will produce motor1.ko
 9. Now we need to place motor1.ko in proper linux directory, we're going to use the following command for this: `make ARCH=arm CROSS_COMPILE=linux-arm-gnueabi` followed by `INSTALL_MOD_PATH=/home/develop/sandbox/fs modules_install` this places the module binary in the directory /home/develop/sandbox/fs/lib/modules/linux-3.8
 10. To load the module once it resides in the modules/linux-3.8 directory and offload with the following commands depending on the desired use method:
@@ -232,7 +243,7 @@ Open the device Motor1, issue a start command to rotate in the left direction, s
                     break;
             }
             //close motor 
-            
+
         return 0;
     }
 ```
